@@ -11,15 +11,29 @@
     - dbusername: "notesapp"
     - dbpassword: "devopsmaonamassa"
   tasks:
+    - name: Configurar hosts lab ansible
+      lineinfile: 
+        dest: /etc/hosts
+        state: present
+        line: "{{item}}" 
+      with_items:
+        - 192.168.56.100 control-node
+        - 192.168.56.101 app01
+        - 192.168.56.102 db01
     - name: Adicionar usuario de app
       user:
         name: app
         comment: Usuario de aplicação
         uid: 500
-    - name: Instalação do Maven
-      yum:
-        name: maven
-        state: latest
+    - name: Download do maven
+      get_url: 
+        url: https://repo.maven.apache.org/maven2/org/apache/maven/apache-maven/3.1.0/apache-maven-3.1.0-bin.tar.gz
+        dest: /opt/apache-maven-3.1.0-bin.tar.gz
+    - name: Unzip do pacote maven
+      ansible.builtin.unarchive:
+        src: /opt/apache-maven-3.1.0-bin.tar.gz
+        dest: /opt/
+        remote_src: yes
     - name: Instalação do Java
       yum:
         name: java-1.8.0-openjdk
@@ -40,6 +54,10 @@
         dest: /opt/notes
         clone: yes
         force: yes
+    - name: Configurar arquivo pom.xml com repositorios maven central
+      template:
+        src: pom.xml
+        dest: /opt/notes/pom.xml
     - name: Configurar arquivo de propriedades para camada de banco de dados
       template:
         src: application.properties

@@ -2,7 +2,6 @@
 Description=notes
 After=network.target
 
-
 [Service]
 User=app
 WorkingDirectory=/opt/notes
